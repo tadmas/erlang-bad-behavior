@@ -1,6 +1,8 @@
 %--------------------------------------------------------------------------
 %% @author David K. Jones [http://www.tadmas.com/]
-%% @reference This is a port of the <a href="http://www.bad-behavior.ioerror.us/">original PHP version</a> written by Michael Hampton.
+%% @reference This is a port of the
+%% <a href="http://www.bad-behavior.ioerror.us/">original PHP version</a>
+%% written by Michael Hampton.
 %% @version 2.2.7
 %% @doc Detects and blocks unwanted Web accesses
 %% @end
