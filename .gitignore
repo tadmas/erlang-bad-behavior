@@ -1,0 +1,10 @@
+# build output
+ebin
+
+# other artifacts
+*.swp
+erl_crash.dump
+
+# Windows
+Thumbs.db
+Desktop.ini
