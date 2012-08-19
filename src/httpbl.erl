@@ -6,6 +6,7 @@
 -module(httpbl).
 
 -include_lib("kernel/include/inet.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 -export([lookup/2]).
 
@@ -42,6 +43,35 @@ lookup(_IPv4={A,B,C,D}, ApiKey) ->
 		{ok, #hostent{h_addrtype=inet, h_addr_list = [{127,Days,Threat,Type}|_]}} ->
 			{found, Threat, visitor_types(Type), Days}
 	end.
+
+% Tests come straight from http://www.projecthoneypot.org/httpbl_api.php
+lookup_test_() ->
+	ApiKey = "test", % seems to work - replace with your own API Key if it stops working.  :)
+	[
+		% Simulate no API Key
+		?_assert(lookup({127,1,1,1}, "") =:= false),
+		% Simulate no record (NXDOMAIN)
+		?_assert(lookup({127,0,0,1}, ApiKey) =:= false),
+		% Simulate different types
+		?_assert(lookup({127,1,1,0}, ApiKey) =:= {search_engine, altavista}),
+		?_assert(lookup({127,1,1,1}, ApiKey) =:= {found, 1, [suspicious], 1}),
+		?_assert(lookup({127,1,1,2}, ApiKey) =:= {found, 1, [harvester], 1}),
+		?_assert(lookup({127,1,1,3}, ApiKey) =:= {found, 1, [suspicious, harvester], 1}),
+		?_assert(lookup({127,1,1,4}, ApiKey) =:= {found, 1, [comment_spammer], 1}),
+		?_assert(lookup({127,1,1,5}, ApiKey) =:= {found, 1, [suspicious, comment_spammer], 1}),
+		?_assert(lookup({127,1,1,6}, ApiKey) =:= {found, 1, [harvester, comment_spammer], 1}),
+		?_assert(lookup({127,1,1,7}, ApiKey) =:= {found, 1, [suspicious, harvester, comment_spammer], 1}),
+		% Simulate different threat ratings
+		?_assert(lookup({127,1,10,1}, ApiKey) =:= {found, 10, [suspicious], 1}),
+		?_assert(lookup({127,1,20,1}, ApiKey) =:= {found, 20, [suspicious], 1}),
+		?_assert(lookup({127,1,40,1}, ApiKey) =:= {found, 40, [suspicious], 1}),
+		?_assert(lookup({127,1,80,1}, ApiKey) =:= {found, 80, [suspicious], 1}),
+		% Simulate different ages
+		?_assert(lookup({127,10,1,1}, ApiKey) =:= {found, 1, [suspicious], 10}),
+		?_assert(lookup({127,20,1,1}, ApiKey) =:= {found, 1, [suspicious], 20}),
+		?_assert(lookup({127,40,1,1}, ApiKey) =:= {found, 1, [suspicious], 40}),
+		?_assert(lookup({127,80,1,1}, ApiKey) =:= {found, 1, [suspicious], 80})
+	].
 
 %% @type visitor_type() =  suspicious | harvester | comment_spammer.
 -type    visitor_type() :: suspicious | harvester | comment_spammer.

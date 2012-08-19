@@ -9,6 +9,8 @@
 %--------------------------------------------------------------------------
 -module(badbehavior).
 
+-include_lib("eunit/include/eunit.hrl").
+
 -export([check_request/2]).
 -export([make_subnet/2]).
 
@@ -84,6 +86,24 @@ ipv4_subnet_match(NormalizedIPv4, Subnet) ->
 		<<Subnet:SubnetSize/bitstring, _/bitstring>> -> true;
 		_ -> false
 	end.
+
+ipv4_subnet_match_test_() ->
+	TestIP = {165, 90, 195, 60},
+	InverseIP = {90, 165, 60, 195},
+	NormalizedTestIP = normalize_ip(inet, TestIP),
+	% Match all bits
+	[?_assert(ipv4_subnet_match(NormalizedTestIP, make_subnet(TestIP, N)) =:= true) || N <- lists:seq(0,32)]
+	++
+	% Match no bits - start at 1 since N = 0 always matches
+	[?_assert(ipv4_subnet_match(NormalizedTestIP, make_subnet(InverseIP, N)) =:= false) || N <- lists:seq(1,32)]
+	++
+	% A few one-off tests
+	[
+		?_assert(ipv4_subnet_match(NormalizedTestIP, <<165:8, 5:4>>) =:= true),
+		?_assert(ipv4_subnet_match(NormalizedTestIP, <<165:8, 7:4>>) =:= false),
+		?_assert(ipv4_subnet_match(NormalizedTestIP, <<165:8, 80:8>>) =:= false),
+		?_assert(ipv4_subnet_match(NormalizedTestIP, <<161:8, 5:4>>) =:= false)
+	].
 
 %% @doc Converts the given IP address into a normalized form used for comparisons.
 %% @end
