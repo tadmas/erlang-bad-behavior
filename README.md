@@ -3,6 +3,8 @@ Bad Behavior
 
 This is a port of Bad Behavior 2.2.7 found at http://bad-behavior.ioerror.us/ from PHP to Erlang.
 
+(This project is incomplete and still under development.)
+
 Bad Behavior transcends other link spam solutions by working in a completely different, unique
 way. Instead of merely looking at the content of potential spam, Bad Behavior analyzes the
 delivery method as well as the software the spammer is using. In this way, Bad Behavior can
